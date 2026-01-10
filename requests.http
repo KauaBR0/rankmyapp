@@ -1,0 +1,56 @@
+@baseUrl = http://localhost:3000
+
+### 1. Healthcheck
+GET {{baseUrl}}/health
+
+### 2. Create Order
+# @name createOrder
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customer": {
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "address": "456 Market St"
+  },
+  "items": [
+    {
+      "productId": "p2",
+      "quantity": 2,
+      "unitPrice": 150
+    }
+  ],
+  "payment": {
+    "method": "credit_card"
+  }
+}
+
+### 3. Get Order by ID
+@orderId = {{createOrder.response.body.data.id}}
+GET {{baseUrl}}/orders/{{orderId}}
+
+### 4. Update Order Status (Processing)
+PATCH {{baseUrl}}/orders/{{orderId}}/status
+Content-Type: application/json
+
+{
+  "status": "processing"
+}
+
+### 5. Update Order Status (Shipped)
+PATCH {{baseUrl}}/orders/{{orderId}}/status
+Content-Type: application/json
+
+{
+  "status": "shipped"
+}
+
+### 6. Invalid Status Transition (Shipped -> Created)
+# Expected: 400 Bad Request
+PATCH {{baseUrl}}/orders/{{orderId}}/status
+Content-Type: application/json
+
+{
+  "status": "created"
+}
